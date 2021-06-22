@@ -36,15 +36,16 @@ out_path = args.output
 
 # Simple setup
 os.makedirs(out_path, exist_ok=True)
-palette = Image.open(path.expanduser(davis_path + '/trainval/Annotations/480p/blackswan/00000.png')).getpalette()
 
 torch.autograd.set_grad_enabled(False)
 
 # Setup Dataset
 if args.split == 'val':
+    palette = Image.open(path.expanduser(davis_path + '/trainval/Annotations/480p/blackswan/00000.png')).getpalette()
     test_dataset = DAVISTestDataset(davis_path+'/trainval', imset='2017/val.txt')
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=4)
 elif args.split == 'testdev':
+    palette = Image.open(path.expanduser(davis_path + '/test-dev/Annotations/480p/salsa/00000.png')).getpalette()
     test_dataset = DAVISTestDataset(davis_path+'/test-dev', imset='2017/test-dev.txt')
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=4)
 else:
