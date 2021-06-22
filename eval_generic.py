@@ -40,6 +40,7 @@ from PIL import Image
 from model.eval_network import STCN
 from dataset.generic_test_dataset import GenericTestDataset
 from util.tensor_util import unpad
+from util.blend_img_mask import blend_img_mask
 from inference_core_yv import InferenceCore
 
 from progressbar import progressbar
@@ -161,8 +162,15 @@ for data in progressbar(test_loader, max_value=len(test_loader), redirect_stdout
                 img_E.putpalette(palette)
                 img_E.save(os.path.join(this_out_path, mask_png_str))
 
+                mask = img_E
+                out_fn = os.path.join(this_out_path, combo_jpg_str)
+                blend_img_mask(src_img_fn, mask, out_fn, 0.5)
+
+
+                '''
                 cv_mask = np.array(img_E) 
                 print(f'{img_E.size, cv_mask.shape}')
+                '''
 
                 '''
                 print(f'{rgb[:,f][0].shape}')
@@ -189,6 +197,7 @@ for data in progressbar(test_loader, max_value=len(test_loader), redirect_stdout
                 '''
 
 
+                '''
                 #print(os.path.join(data_path, rgb_jpg_str))
                 cv_rgb          = cv2.imread(src_img_fn)
                 cv_mask_rgb     = cv2.cvtColor(cv_mask, cv2.COLOR_GRAY2RGB)
@@ -199,6 +208,7 @@ for data in progressbar(test_loader, max_value=len(test_loader), redirect_stdout
                 out_fn = os.path.join(this_out_path, combo_jpg_str)
                 print(f'Saving combo image: {out_fn}')
                 cv2.imwrite(out_fn, combo_image)
+                '''
 
         del rgb
         del msk
