@@ -23,18 +23,23 @@ class InferenceCore:
         nh, nw = images.shape[-2:]
 
         self.images = images
+        print(f'InferenceCore.__init__() - len(self.images): {len(self.images)}')
         self.device = 'cuda'
 
         self.k = num_objects
+        print(f'InferenceCore.__init__() - self.k: {self.k}')
 
         # Background included, not always consistent (i.e. sum up to 1)
         self.prob = torch.zeros((self.k+1, t, 1, nh, nw), dtype=torch.float32, device=self.device)
         self.prob[0] = 1e-7
 
         self.t, self.h, self.w = t, h, w
+        print(f'InferenceCore.__init__() - self.t: {self.t} - self.h: {self.h} - self.w: {self.w}')
         self.nh, self.nw = nh, nw
+        print(f'InferenceCore.__init__() - self.nh: {self.nh} - self.nw: {self.nw}')
         self.kh = self.nh//16
         self.kw = self.nw//16
+        print(f'InferenceCore.__init__() - self.kh: {self.kh} - self.kw: {self.kw}')
 
         self.mem_bank = MemoryBank(k=self.k, top_k=top_k)
 

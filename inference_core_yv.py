@@ -23,16 +23,20 @@ class InferenceCore:
         # True dimensions
         t = images.shape[1]
         h, w = images.shape[-2:]
+        print(f'InferenceCore_yv.__init__() - t: {t} - h: {h} - w: {w}')
 
         # Pad each side to multiple of 16
         images, self.pad = pad_divide_by(images, 16)
         # Padded dimensions
         nh, nw = images.shape[-2:]
+        print(f'InferenceCore_yv.__init__() - nh: {nh} - nw: {nw}')
 
         self.images = images
+        #print(f'InferenceCore_yv.__init__() - len(self.images): {len(self.images)}')
         self.device = 'cuda'
 
         self.k = num_objects
+        print(f'InferenceCore_yv.__init__() - self.k: {self.k}')
 
         # Background included, not always consistent (i.e. sum up to 1)
         self.prob = torch.zeros((self.k+1, t, 1, nh, nw), dtype=torch.float32, device=self.device)
@@ -42,6 +46,7 @@ class InferenceCore:
         self.nh, self.nw = nh, nw
         self.kh = self.nh//16
         self.kw = self.nw//16
+        print(f'InferenceCore_yv.__init__() - self.kh: {self.kh} - self.kw: {self.kw}')
 
         # list of objects with usable memory
         self.enabled_obj = []
@@ -101,6 +106,7 @@ class InferenceCore:
         return closest_ti
 
     def interact(self, mask, frame_idx, end_idx, obj_idx):
+        print(f'InferenceCore_yv.interact() - START - frame_idx: {frame_idx} - end_idx: {end_idx} - obj_idx: {obj_idx}')
         # In youtube mode, we interact with a subset of object id at a time
         mask, _ = pad_divide_by(mask.cuda(), 16)
 
@@ -121,3 +127,4 @@ class InferenceCore:
 
         # Propagate
         self.do_pass(key_k, key_v, frame_idx, end_idx)
+        print(f'InferenceCore_yv.interact() - END   - frame_idx: {frame_idx} - end_idx: {end_idx} - obj_idx: {obj_idx}')

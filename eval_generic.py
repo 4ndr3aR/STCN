@@ -45,8 +45,6 @@ from inference_core_yv import InferenceCore
 
 from progressbar import progressbar
 
-import cv2
-
 """
 Arguments loading
 """
@@ -70,7 +68,7 @@ torch.autograd.set_grad_enabled(False)
 
 # Setup Dataset
 test_dataset = GenericTestDataset(data_root=data_path)
-test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=2)
+test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=32)
 
 # Load our checkpoint
 prop_saved = torch.load(args.model)
@@ -83,10 +81,10 @@ for data in progressbar(test_loader, max_value=len(test_loader), redirect_stdout
 
     with torch.cuda.amp.autocast(enabled=args.amp):
         rgb = data['rgb']
-        print(rgb.shape)
+        print(f'rgb.shape: {rgb.shape}')
 
         msk = data['gt'][0]
-        print(msk.shape)
+        print(f'msk.shape: {msk.shape}')
 
         info = data['info']
         name = info['name'][0]
@@ -113,6 +111,7 @@ for data in progressbar(test_loader, max_value=len(test_loader), redirect_stdout
         min_idx = 99999
         for i, frame_idx in enumerate(frames_with_gt):
             min_idx = min(frame_idx, min_idx)
+            print(f'eval_generic START - i: {i} - frame_idx: {frame_idx} - min_idx: {min_idx}')
             # Note that there might be more than one label per frame
             obj_idx = gt_obj[frame_idx][0].tolist()
             # Map the possibly non-continuous labels into a continuous scheme
@@ -129,6 +128,7 @@ for data in progressbar(test_loader, max_value=len(test_loader), redirect_stdout
                 processor.interact(with_bg_msk, frame_idx, rgb.shape[1], obj_idx)
             else:
                 processor.interact(with_bg_msk, frame_idx, frames_with_gt[i+1]+1, obj_idx)
+            print(f'eval_generic - END   - i: {i} - frame_idx: {frame_idx} - min_idx: {min_idx}')
 
         # Do unpad -> upsample to original size (we made it 480p)
         out_masks = torch.zeros((processor.t, 1, *size), dtype=torch.uint8, device='cuda')
